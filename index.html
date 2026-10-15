@@ -4,7 +4,136 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kártyagyűjtő</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0b0b10;
+  --panel: #14141c;
+  --line: #2a2a38;
+  --text: #ececf3;
+  --muted: #8b8ba0;
+  --red: #ff3b3b;
+}
+body { font-family: "Segoe UI", system-ui, sans-serif; background: radial-gradient(circle at top, #1b1020, var(--bg) 60%); color: var(--text); min-height: 100vh; }
+.hidden { display: none !important; }
+button { cursor: pointer; font-family: inherit; }
+
+/* ---------- Auth ---------- */
+#auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.auth-box { width: 100%; max-width: 380px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 28px; box-shadow: 0 0 60px rgba(255, 59, 59, .15); }
+.auth-box h1 { text-align: center; margin-bottom: 20px; letter-spacing: 1px; }
+.auth-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+.auth-tabs button { flex: 1; padding: 10px; background: #1c1c27; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; }
+.auth-tabs button.active { color: #fff; border-color: var(--red); background: #2a1216; }
+#auth-form { display: flex; flex-direction: column; gap: 10px; }
+#auth-form input { padding: 12px; background: #0d0d14; border: 1px solid var(--line); border-radius: 8px; color: var(--text); font-size: 15px; }
+#auth-form input:focus { outline: none; border-color: var(--red); }
+#auth-submit, .btn { padding: 12px 18px; background: linear-gradient(135deg, #ff3b3b, #b3122a); color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; transition: transform .1s, filter .2s; }
+#auth-submit:hover, .btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+.btn:disabled { filter: grayscale(1) brightness(.6); cursor: not-allowed; transform: none; }
+.btn.alt { background: #23232f; border: 1px solid var(--line); }
+.error { color: #ff6b6b; font-size: 14px; min-height: 18px; }
+
+/* ---------- Layout ---------- */
+#app { display: flex; min-height: 100vh; }
+#sidebar { width: 240px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 18px 14px; position: sticky; top: 0; height: 100vh; }
+.logo { font-size: 20px; font-weight: 800; margin-bottom: 24px; text-align: center; }
+nav { display: flex; flex-direction: column; gap: 8px; }
+.nav-btn { text-align: left; padding: 13px 14px; background: transparent; color: var(--muted); border: 1px solid transparent; border-radius: 10px; font-size: 15px; transition: .15s; }
+.nav-btn:hover { background: #1c1c27; color: #fff; }
+.nav-btn.active { background: #2a1216; color: #fff; border-color: var(--red); }
+.side-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; text-align: center; }
+#me-name { font-weight: 700; }
+.coins { color: #ffd34d; font-weight: 700; font-size: 18px; }
+#logout { padding: 9px; background: #1c1c27; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; }
+#logout:hover { color: #fff; }
+#content { flex: 1; padding: 28px; min-width: 0; }
+.view h2 { font-size: 26px; margin-bottom: 6px; }
+.sub { color: var(--muted); margin-bottom: 18px; }
+
+/* ---------- Progress ---------- */
+.progress { height: 10px; background: #1c1c27; border-radius: 99px; overflow: hidden; margin: 8px 0 18px; max-width: 420px; }
+.progress > div { height: 100%; background: linear-gradient(90deg, #ff3b3b, #ffd34d); }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.chip { padding: 7px 14px; border-radius: 99px; background: #1c1c27; border: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+.chip.active { color: #fff; border-color: var(--red); }
+
+/* ---------- Cards ---------- */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 18px; }
+.card { position: relative; aspect-ratio: 2 / 3; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; background: #0c0c10; border: 3px solid var(--bc, #555); box-shadow: 0 0 18px var(--glow, transparent); transition: transform .2s; cursor: pointer; }
+.card:hover { transform: translateY(-5px) scale(1.03); }
+.card .art { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; background: var(--artbg, #222); overflow: hidden; }
+.card .art img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.card .art .emoji { font-size: 64px; filter: drop-shadow(0 0 12px var(--bc)); }
+.card .info { text-align: center; padding: 8px 4px 9px; background: rgba(0, 0, 0, .85); border-top: 2px solid var(--bc); }
+.card .cname { font-weight: 800; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card .crar { font-weight: 800; font-size: 12px; letter-spacing: 1.5px; color: var(--bc); }
+.card .cpct { font-size: 13px; color: #ddd; }
+.card .count { position: absolute; top: 6px; right: 6px; background: rgba(0, 0, 0, .8); border: 1px solid var(--bc); border-radius: 99px; padding: 2px 9px; font-size: 12px; font-weight: 700; z-index: 2; }
+.card .tag { position: absolute; top: 6px; left: 6px; background: #ffd34d; color: #000; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; z-index: 2; }
+
+/* Ritkaságok */
+.r-common    { --bc: #9a9aa5; --glow: rgba(150,150,165,.15); --artbg: linear-gradient(#2b2b33, #15151a); }
+.r-rare      { --bc: #3da0ff; --glow: rgba(61,160,255,.35); --artbg: linear-gradient(#10304f, #08121f); }
+.r-epic      { --bc: #b45cff; --glow: rgba(180,92,255,.4);  --artbg: linear-gradient(#2e1252, #12081f); }
+.r-legendary { --bc: #ffc72e; --glow: rgba(255,199,46,.45); --artbg: radial-gradient(circle, #5a4210, #1a1204); }
+.r-mythic    { --bc: #ff3b3b; --glow: rgba(255,59,59,.55);  --artbg: radial-gradient(circle, #5a0d12, #14040a); }
+.r-secret    { --bc: #ffffff; --glow: rgba(255,255,255,.5); --artbg: radial-gradient(circle, #333, #000); }
+.r-secret .crar { text-shadow: 0 0 8px #fff; }
+
+/* Hiányzó kártya */
+.card.missing { filter: grayscale(1) brightness(.35); box-shadow: none; }
+.card.missing .art img, .card.missing .emoji { filter: brightness(0); }
+.card.missing .cname { letter-spacing: 3px; }
+
+/* ---------- Shop ---------- */
+.shop { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; margin-bottom: 26px; }
+.pack { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; text-align: center; }
+.pack .pic { font-size: 70px; margin-bottom: 8px; filter: drop-shadow(0 0 14px rgba(255, 59, 59, .6)); }
+.pack h3 { margin-bottom: 4px; }
+.pack p { color: var(--muted); font-size: 14px; margin-bottom: 12px; }
+.odds { max-width: 460px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+.odds h4 { margin-bottom: 8px; }
+.odds div { display: flex; justify-content: space-between; padding: 3px 0; font-size: 14px; }
+
+/* ---------- Modal / nyitás ---------- */
+#modal { position: fixed; inset: 0; background: rgba(0, 0, 0, .88); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px; overflow: auto; }
+#modal-inner { text-align: center; max-width: 900px; width: 100%; }
+.reveal-row { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
+.reveal-row .card { width: 190px; flex-shrink: 0; cursor: default; animation: pop .6s cubic-bezier(.2, 1.4, .4, 1) both; }
+.reveal-row .card:nth-child(2) { animation-delay: .15s; }
+.reveal-row .card:nth-child(3) { animation-delay: .3s; }
+.reveal-row .card:nth-child(4) { animation-delay: .45s; }
+.reveal-row .card:nth-child(5) { animation-delay: .6s; }
+@keyframes pop { from { transform: scale(.2) rotateY(180deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.new-badge { color: #7dff9a; font-weight: 800; font-size: 13px; margin-top: 6px; }
+.big-card { width: 260px; margin: 0 auto 16px; cursor: default; }
+.shake { animation: shake .8s; }
+@keyframes shake { 0%,100% { transform: none; } 20% { transform: rotate(-8deg) scale(1.1); } 40% { transform: rotate(8deg) scale(1.1); } 60% { transform: rotate(-6deg); } 80% { transform: rotate(6deg); } }
+
+/* ---------- Játékosok ---------- */
+.players { display: flex; flex-direction: column; gap: 10px; max-width: 640px; }
+.player { display: flex; align-items: center; gap: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: .15s; }
+.player:hover { border-color: var(--red); }
+.player .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #ff3b3b, #6a1bb3); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 19px; }
+.player .pinfo { flex: 1; min-width: 0; }
+.player .pn { font-weight: 700; }
+.player .ps { font-size: 13px; color: var(--muted); }
+.back { margin-bottom: 14px; }
+
+/* ---------- Mobil ---------- */
+@media (max-width: 760px) {
+  #app { flex-direction: column; }
+  #sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 10px; gap: 8px; }
+  .logo { display: none; }
+  nav { flex-direction: row; flex: 1; gap: 4px; }
+  .nav-btn { padding: 10px 8px; font-size: 12px; text-align: center; flex: 1; }
+  .side-bottom { margin: 0; flex-direction: row; align-items: center; width: 100%; justify-content: space-between; }
+  #content { padding: 16px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 12px; }
+}
+
+</style>
 </head>
 <body>
 
@@ -53,7 +182,396 @@
   <!-- Nagyított kártya / felugró ablak -->
   <div id="modal" class="hidden"><div id="modal-inner"></div></div>
 
-  <script src="cards.js"></script>
-  <script src="app.js"></script>
+  <script>
+// ===== KÁRTYÁK LISTÁJA =====
+// Új kártya hozzáadása: tegyél be egy sort ide, a képet pedig az img/ mappába.
+// chance = esély százalékban egy csomag nyitásakor (az összegnek kb. 100-nak kell lennie).
+// A "Common / Rare / Epic" kártyák helyőrzők: írd át a nevüket és tedd be a képüket!
+
+const RARITIES = {
+  secret:    { label: "SECRET",    sell: 1000, order: 0 },
+  mythic:    { label: "MYTHIC",    sell: 300,  order: 1 },
+  legendary: { label: "LEGENDARY", sell: 100,  order: 2 },
+  epic:      { label: "EPIC",      sell: 40,   order: 3 },
+  rare:      { label: "RARE",      sell: 20,   order: 4 },
+  common:    { label: "COMMON",    sell: 10,   order: 5 },
+};
+
+const CARDS = [
+  // --- SECRET ---
+  { id: "smash-janos", name: "Smash Janos", rarity: "secret", chance: 0.05, img: "img/smash-janos.png", emoji: "💀" },
+
+  // --- MYTHIC ---
+  { id: "lakxjrncpreceldodk", name: "lakxjrncpreceldodk", rarity: "mythic", chance: 0.1, img: "img/lakxjrncpreceldodk.png", emoji: "🦃" },
+  { id: "deadly-cookie", name: "Deadly Cookie", rarity: "mythic", chance: 0.1, img: "img/deadly-cookie.png", emoji: "🍪" },
+  { id: "perec", name: "Perec", rarity: "mythic", chance: 0.2, img: "img/perec.png", emoji: "🥨" },
+  { id: "geri-a-kalandor", name: "Geri a Kalandor", rarity: "mythic", chance: 0.2, img: "img/geri-a-kalandor.png", emoji: "🏜️" },
+  { id: "mav", name: "MÁV", rarity: "mythic", chance: 0.3, img: "img/mav.png", emoji: "🚆" },
+  { id: "bob", name: "BOB", rarity: "mythic", chance: 0.5, img: "img/bob.png", emoji: "🟥" },
+  { id: "chuck-norris", name: "Chuck Norris", rarity: "mythic", chance: 0.8, img: "img/chuck-norris.png", emoji: "🤠" },
+  { id: "bread", name: "Bread", rarity: "mythic", chance: 1, img: "img/bread.png", emoji: "🍞" },
+
+  // --- LEGENDARY ---
+  { id: "sas-jonas", name: "Sas Jónás", rarity: "legendary", chance: 1.1, img: "img/sas-jonas.png", emoji: "🦅" },
+  { id: "moai", name: "Moai", rarity: "legendary", chance: 2, img: "img/moai.png", emoji: "🗿" },
+  { id: "kazity", name: "Kazity", rarity: "legendary", chance: 2.6, img: "img/kazity.png", emoji: "😁" },
+  { id: "kazika-a-pulyka", name: "Kazika a pulyka", rarity: "legendary", chance: 3, img: "img/kazika-a-pulyka.png", emoji: "🦃" },
+  { id: "green-kocmoc", name: "Green Kocmoc", rarity: "legendary", chance: 3, img: "img/green-kocmoc.png", emoji: "🟢", tag: "LIMITED" },
+  { id: "dermo", name: "Dermo", rarity: "legendary", chance: 3.5, img: "img/dermo.png", emoji: "⏳" },
+  { id: "speedster69", name: "Speedster69", rarity: "legendary", chance: 4, img: "img/speedster69.png", emoji: "⚡" },
+  { id: "feri", name: "Feri", rarity: "legendary", chance: 4.7, img: "img/feri.png", emoji: "👆" },
+  { id: "cheesy-cheese", name: "Cheesy Cheese", rarity: "legendary", chance: 4.5, img: "img/cheesy-cheese.png", emoji: "🧀" },
+  { id: "oszi", name: "Oszi", rarity: "legendary", chance: 5, img: "img/oszi.png", emoji: "🌈" },
+
+  // --- HELYŐRZŐK (írd át őket!) ---
+  { id: "epic-1", name: "Epic kártya 1", rarity: "epic", chance: 10, img: "img/epic-1.png", emoji: "💜" },
+  { id: "epic-2", name: "Epic kártya 2", rarity: "epic", chance: 10, img: "img/epic-2.png", emoji: "🔮" },
+  { id: "rare-1", name: "Rare kártya 1", rarity: "rare", chance: 11.67, img: "img/rare-1.png", emoji: "💙" },
+  { id: "rare-2", name: "Rare kártya 2", rarity: "rare", chance: 11.68, img: "img/rare-2.png", emoji: "🌀" },
+  { id: "common-1", name: "Common kártya 1", rarity: "common", chance: 10, img: "img/common-1.png", emoji: "⚪" },
+  { id: "common-2", name: "Common kártya 2", rarity: "common", chance: 10, img: "img/common-2.png", emoji: "🔘" },
+];
+
+</script>
+  <script>
+// =====================================================
+//  Kártyagyűjtő – fő logika
+//  FIGYELEM: az adatok a böngésző localStorage-ában vannak.
+//  GitHub Pages-en ezért minden játékos csak a saját gépén látja a fiókjait.
+//  Ha tényleg közös játékoslistát akartok, kell egy online adatbázis (pl. Firebase).
+//  Minden mentés/betöltés a DB objektumon megy át, így később könnyen cserélhető.
+// =====================================================
+
+const START_COINS = 500;
+const DAILY_COINS = 200;
+const PACKS = [
+  { id: "basic", name: "Alap csomag", count: 1, price: 100, emoji: "🎁", desc: "1 kártya" },
+  { id: "big",   name: "Nagy csomag", count: 5, price: 450, emoji: "📦", desc: "5 kártya – kicsit olcsóbb!" },
+];
+
+// ---------- Tárolás ----------
+// Ha a böngésző tiltja a localStorage-t (pl. előnézet), memóriába mentünk (frissítésig él).
+const mem = {};
+const store = {
+  get(k) { try { const v = localStorage.getItem(k); return v === null ? (mem[k] ?? null) : v; } catch { return mem[k] ?? null; } },
+  set(k, v) { mem[k] = v; try { localStorage.setItem(k, v); } catch {} },
+  del(k) { delete mem[k]; try { localStorage.removeItem(k); } catch {} },
+};
+const DB = {
+  users() { try { return JSON.parse(store.get("kk_users")) || {}; } catch { return {}; } },
+  save(users) { store.set("kk_users", JSON.stringify(users)); },
+  session() { return store.get("kk_session"); },
+  setSession(n) { n ? store.set("kk_session", n) : store.del("kk_session"); },
+};
+
+// Hiba esetén látható üzenet (ne csendben álljon le)
+window.addEventListener("error", e => { const el = document.querySelector("#auth-error"); if (el) el.textContent = "Hiba: " + e.message; });
+window.addEventListener("unhandledrejection", e => { const el = document.querySelector("#auth-error"); if (el) el.textContent = "Hiba: " + (e.reason && e.reason.message || e.reason); });
+
+async function hash(text) {
+  if (window.crypto && crypto.subtle) {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("kk$" + text));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+  return btoa(unescape(encodeURIComponent("kk$" + text)));
+}
+
+let me = null; // bejelentkezett felhasználónév
+
+function user() { return DB.users()[me]; }
+function updateUser(fn) {
+  const users = DB.users();
+  fn(users[me]);
+  DB.save(users);
+  renderSide();
+}
+
+// ---------- Segédek ----------
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmtPct = n => (n + "%").replace(".", ",");
+
+function cardHTML(c, opts = {}) {
+  const { count = 0, missing = false } = opts;
+  const name = missing ? "???" : esc(c.name);
+  const img = `<img src="${c.img}" alt="" loading="lazy" onerror="this.remove()">`;
+  return `
+  <div class="card r-${c.rarity} ${missing ? "missing" : ""}" data-id="${c.id}">
+    ${c.tag && !missing ? `<span class="tag">${c.tag}</span>` : ""}
+    ${count > 1 ? `<span class="count">x${count}</span>` : ""}
+    <div class="art"><span class="emoji">${c.emoji}</span>${img}</div>
+    <div class="info">
+      <div class="cname">${name}</div>
+      <div class="crar">${RARITIES[c.rarity].label}</div>
+      <div class="cpct">${fmtPct(c.chance)}</div>
+    </div>
+  </div>`;
+}
+
+function rollCard() {
+  const total = CARDS.reduce((s, c) => s + c.chance, 0);
+  let r = Math.random() * total;
+  for (const c of CARDS) { r -= c.chance; if (r <= 0) return c; }
+  return CARDS[CARDS.length - 1];
+}
+
+// ---------- Auth ----------
+// Ha az index.html régi (nincs email mező), létrehozzuk itt, hogy ne akadjon el.
+if (!$("#auth-email")) {
+  const em = document.createElement("input");
+  em.id = "auth-email"; em.type = "text"; em.placeholder = "Email (vagy felhasználónév)"; em.maxLength = 60;
+  $("#auth-form").prepend(em);
+}
+if (!$("#auth-user")) {
+  const un = document.createElement("input");
+  un.id = "auth-user"; un.type = "text"; un.placeholder = "Felhasználónév (ez látszik a többieknek)"; un.maxLength = 20; un.className = "hidden";
+  $("#auth-email").after(un);
+}
+$("#auth-email").required = true;
+$("#auth-user").required = false;
+$("#auth-user").classList.add("hidden");
+let mode = "login";
+function setMode(m) {
+  mode = m;
+  $("#tab-login").classList.toggle("active", m === "login");
+  $("#tab-register").classList.toggle("active", m === "register");
+  $("#auth-pass2").classList.toggle("hidden", m === "login");
+  $("#auth-user").classList.toggle("hidden", m === "login");
+  $("#auth-email").placeholder = m === "login" ? "Email (vagy felhasználónév)" : "Email";
+  $("#auth-submit").textContent = m === "login" ? "Belépés" : "Fiók létrehozása";
+  $("#auth-error").textContent = "";
+}
+$("#tab-login").onclick = () => setMode("login");
+$("#tab-register").onclick = () => setMode("register");
+
+$("#auth-form").onsubmit = async e => {
+  e.preventDefault();
+  const idf = $("#auth-email").value.trim().toLowerCase();
+  const name = $("#auth-user").value.trim();
+  const pass = $("#auth-pass").value;
+  const err = $("#auth-error");
+  const users = DB.users();
+
+  if (mode === "register") {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(idf)) return (err.textContent = "Adj meg egy érvényes email címet.");
+    if (name.length < 3) return (err.textContent = "A felhasználónév legalább 3 karakter legyen.");
+    if (pass.length < 6) return (err.textContent = "A jelszó legalább 6 karakter legyen.");
+    if (pass !== $("#auth-pass2").value) return (err.textContent = "A két jelszó nem egyezik.");
+    if (Object.values(users).some(u => (u.email || "") === idf)) return (err.textContent = "Ezzel az emaillel már van fiók.");
+    if (Object.keys(users).some(u => u.toLowerCase() === name.toLowerCase())) return (err.textContent = "Ez a felhasználónév már foglalt.");
+    users[name] = { email: idf, pass: await hash(pass), coins: START_COINS, cards: {}, lastDaily: 0, created: Date.now() };
+    DB.save(users);
+    me = name;
+  } else {
+    const key = Object.keys(users).find(k => (users[k].email || "") === idf || k.toLowerCase() === idf);
+    if (!key || users[key].pass !== await hash(pass)) return (err.textContent = "Hibás email vagy jelszó.");
+    me = key;
+  }
+  DB.setSession(me);
+  startApp();
+};
+
+$("#logout").onclick = () => {
+  DB.setSession(null);
+  me = null;
+  $("#app").classList.add("hidden");
+  $("#auth-screen").classList.remove("hidden");
+  $("#auth-form").reset();
+  setMode("login");
+};
+
+// ---------- App ----------
+function startApp() {
+  $("#auth-screen").classList.add("hidden");
+  $("#app").classList.remove("hidden");
+  renderSide();
+  showView("mycards");
+}
+
+function renderSide() {
+  const u = user();
+  if (!u) return;
+  $("#me-name").textContent = "👤 " + me;
+  $("#me-coins").textContent = "🪙 " + u.coins;
+}
+
+function showView(v) {
+  $$(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+  $$(".view").forEach(s => s.classList.add("hidden"));
+  $("#view-" + v).classList.remove("hidden");
+  if (v === "mycards") renderMyCards();
+  if (v === "open") renderShop();
+  if (v === "players") renderPlayers();
+}
+$$(".nav-btn").forEach(b => (b.onclick = () => showView(b.dataset.view)));
+
+// ---------- Modal ----------
+function openModal(html) { $("#modal-inner").innerHTML = html; $("#modal").classList.remove("hidden"); }
+function closeModal() { $("#modal").classList.add("hidden"); $("#modal-inner").innerHTML = ""; }
+$("#modal").onclick = e => { if (e.target.id === "modal") closeModal(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+// ---------- Kártyáim ----------
+let filter = "all";
+
+function collectionHTML(cards, filterKey, interactive) {
+  const owned = CARDS.filter(c => cards[c.id] > 0).length;
+  const pct = Math.round((owned / CARDS.length) * 100);
+  const keys = ["all", ...Object.keys(RARITIES).sort((a, b) => RARITIES[a].order - RARITIES[b].order)];
+  const list = CARDS
+    .filter(c => filterKey === "all" || c.rarity === filterKey)
+    .sort((a, b) => RARITIES[a.rarity].order - RARITIES[b.rarity].order || a.chance - b.chance);
+
+  return `
+    <div class="sub">Megvan: <b>${owned}</b> / ${CARDS.length} (${pct}%)</div>
+    <div class="progress"><div style="width:${pct}%"></div></div>
+    <div class="filters">
+      ${keys.map(k => `<button class="chip ${k === filterKey ? "active" : ""}" data-f="${k}">${k === "all" ? "Mind" : RARITIES[k].label}</button>`).join("")}
+    </div>
+    <div class="grid">
+      ${list.map(c => cardHTML(c, { count: cards[c.id] || 0, missing: !(cards[c.id] > 0) })).join("")}
+    </div>`;
+}
+
+function renderMyCards() {
+  const el = $("#view-mycards");
+  el.innerHTML = `<h2>🃏 Kártyáim</h2>` + collectionHTML(user().cards, filter, true);
+  el.querySelectorAll(".chip").forEach(b => (b.onclick = () => { filter = b.dataset.f; renderMyCards(); }));
+  el.querySelectorAll(".card").forEach(div => (div.onclick = () => inspectCard(div.dataset.id)));
+}
+
+function inspectCard(id) {
+  const c = CARDS.find(x => x.id === id);
+  const n = user().cards[id] || 0;
+  if (!n) return;
+  const price = RARITIES[c.rarity].sell;
+  openModal(`
+    ${cardHTML(c, { count: n }).replace('class="card', 'class="card big-card')}
+    <p class="sub">Nálad van: <b>${n}</b> db</p>
+    ${n > 1 ? `<button class="btn" id="sell-dup">Egy felesleges eladása (+${price} 🪙)</button>` : `<p class="sub">Az utolsó példányt nem lehet eladni.</p>`}
+    <br><br><button class="btn alt" id="close-m">Bezár</button>`);
+  $("#close-m").onclick = closeModal;
+  const sell = $("#sell-dup");
+  if (sell) sell.onclick = () => {
+    updateUser(u => { u.cards[id]--; u.coins += price; });
+    closeModal();
+    renderMyCards();
+  };
+}
+
+// ---------- Shop / nyitás ----------
+function renderShop() {
+  const u = user();
+  const dailyReady = Date.now() - (u.lastDaily || 0) > 24 * 3600 * 1000;
+  const sumBy = r => CARDS.filter(c => c.rarity === r).reduce((s, c) => s + c.chance, 0);
+  const el = $("#view-open");
+  el.innerHTML = `
+    <h2>🎁 Kártyanyitás / Shop</h2>
+    <div class="sub">Vegyél csomagot és szerezd meg az összes kártyát!</div>
+    <div class="shop">
+      ${PACKS.map(p => `
+        <div class="pack">
+          <div class="pic">${p.emoji}</div>
+          <h3>${p.name}</h3>
+          <p>${p.desc}</p>
+          <button class="btn buy" data-id="${p.id}" ${u.coins < p.price ? "disabled" : ""}>Nyitás – ${p.price} 🪙</button>
+        </div>`).join("")}
+      <div class="pack">
+        <div class="pic">🎉</div>
+        <h3>Napi ajándék</h3>
+        <p>Naponta egyszer +${DAILY_COINS} 🪙</p>
+        <button class="btn" id="daily" ${dailyReady ? "" : "disabled"}>${dailyReady ? "Felvétel" : "Már felvetted ma"}</button>
+      </div>
+    </div>
+    <div class="odds">
+      <h4>Esélyek</h4>
+      ${Object.keys(RARITIES).sort((a, b) => RARITIES[a].order - RARITIES[b].order)
+        .map(r => `<div><span class="crar" style="color:inherit">${RARITIES[r].label}</span><span>${fmtPct(Math.round(sumBy(r) * 100) / 100)}</span></div>`).join("")}
+    </div>`;
+
+  el.querySelectorAll(".buy").forEach(b => (b.onclick = () => buyPack(b.dataset.id)));
+  $("#daily").onclick = () => {
+    updateUser(u => { u.coins += DAILY_COINS; u.lastDaily = Date.now(); });
+    renderShop();
+  };
+}
+
+function buyPack(packId) {
+  const p = PACKS.find(x => x.id === packId);
+  if (user().coins < p.price) return;
+  const results = [];
+  updateUser(u => {
+    u.coins -= p.price;
+    for (let i = 0; i < p.count; i++) {
+      const c = rollCard();
+      results.push({ c, isNew: !(u.cards[c.id] > 0) });
+      u.cards[c.id] = (u.cards[c.id] || 0) + 1;
+    }
+  });
+
+  // rázkódó csomag, majd felfedés
+  openModal(`<div class="pack" style="max-width:240px;margin:60px auto"><div class="pic shake" style="font-size:90px">${p.emoji}</div><p>Nyitás...</p></div>`);
+  setTimeout(() => {
+    const best = results.reduce((a, b) => (RARITIES[b.c.rarity].order < RARITIES[a.c.rarity].order ? b : a));
+    openModal(`
+      <h2>${best.c.rarity === "secret" ? "🤯 SECRET!!!" : best.c.rarity === "mythic" ? "🔥 MYTHIC!" : "Ezt húztad:"}</h2>
+      <div class="reveal-row">
+        ${results.map(r => `<div>${cardHTML(r.c)}${r.isNew ? '<div class="new-badge">✨ ÚJ!</div>' : '<div class="sub" style="margin:6px 0 0">Duplikált</div>'}</div>`).join("")}
+      </div>
+      <button class="btn" id="ok">Szuper!</button>`);
+    $("#ok").onclick = () => { closeModal(); renderShop(); };
+  }, 900);
+}
+
+// ---------- Játékosok ----------
+function renderPlayers(selected) {
+  const el = $("#view-players");
+  const users = DB.users();
+
+  if (selected && users[selected]) {
+    const u = users[selected];
+    const owned = CARDS.filter(c => u.cards[c.id] > 0).length;
+    el.innerHTML = `
+      <button class="btn alt back" id="back">← Vissza</button>
+      <h2>👤 ${esc(selected)} kártyái</h2>
+      <div class="sub">${owned} / ${CARDS.length} kártya van meg</div>
+      <div class="grid">
+        ${CARDS.slice().sort((a, b) => RARITIES[a.rarity].order - RARITIES[b.rarity].order || a.chance - b.chance)
+          .map(c => cardHTML(c, { count: u.cards[c.id] || 0, missing: !(u.cards[c.id] > 0) })).join("")}
+      </div>`;
+    $("#back").onclick = () => renderPlayers();
+    return;
+  }
+
+  const list = Object.entries(users).map(([name, u]) => ({
+    name,
+    owned: CARDS.filter(c => u.cards[c.id] > 0).length,
+    best: CARDS.filter(c => u.cards[c.id] > 0).sort((a, b) => RARITIES[a.rarity].order - RARITIES[b.rarity].order)[0],
+  })).sort((a, b) => b.owned - a.owned);
+
+  el.innerHTML = `
+    <h2>👥 Többi játékos</h2>
+    <div class="sub">Kattints egy játékosra, hogy lásd a gyűjteményét. (Ranglista kártyák száma szerint)</div>
+    <div class="players">
+      ${list.map((p, i) => `
+        <div class="player" data-n="${esc(p.name)}">
+          <div class="avatar">${esc(p.name[0].toUpperCase())}</div>
+          <div class="pinfo">
+            <div class="pn">${i + 1}. ${esc(p.name)} ${p.name === me ? "(te)" : ""}</div>
+            <div class="ps">${p.owned} / ${CARDS.length} kártya${p.best ? " · legjobb: " + esc(p.best.name) + " (" + RARITIES[p.best.rarity].label + ")" : ""}</div>
+          </div>
+        </div>`).join("")}
+    </div>`;
+  el.querySelectorAll(".player").forEach(d => (d.onclick = () => renderPlayers(d.dataset.n)));
+}
+
+// ---------- Indulás ----------
+(function init() {
+  const s = DB.session();
+  if (s && DB.users()[s]) { me = s; startApp(); }
+})();
+
+</script>
 </body>
 </html>
