@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kártyagyűjtő</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== BEJELENTKEZÉS ===== -->
+  <section id="auth-screen">
+    <div class="auth-box">
+      <h1>⚔️ Kártyagyűjtő</h1>
+      <div class="auth-tabs">
+        <button type="button" id="tab-login" class="active">Bejelentkezés</button>
+        <button type="button" id="tab-register">Regisztráció</button>
+      </div>
+      <form id="auth-form" autocomplete="off">
+        <input id="auth-email" type="text" placeholder="Email (vagy felhasználónév)" maxlength="60" required>
+        <input id="auth-user" type="text" placeholder="Felhasználónév (ez látszik a többieknek)" maxlength="20" class="hidden">
+        <input id="auth-pass" type="password" placeholder="Jelszó" required>
+        <input id="auth-pass2" type="password" placeholder="Jelszó újra" class="hidden">
+        <button type="submit" id="auth-submit">Belépés</button>
+        <p id="auth-error" class="error"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== FŐ OLDAL ===== -->
+  <div id="app" class="hidden">
+    <aside id="sidebar">
+      <div class="logo">⚔️ Kártyagyűjtő</div>
+      <nav>
+        <button data-view="mycards" class="nav-btn active">🃏 Kártyáim</button>
+        <button data-view="open" class="nav-btn">🎁 Kártyanyitás / Shop</button>
+        <button data-view="players" class="nav-btn">👥 Többi játékos</button>
+      </nav>
+      <div class="side-bottom">
+        <div id="me-name"></div>
+        <div id="me-coins" class="coins"></div>
+        <button id="logout">Kijelentkezés</button>
+      </div>
+    </aside>
+
+    <main id="content">
+      <section id="view-mycards" class="view"></section>
+      <section id="view-open" class="view hidden"></section>
+      <section id="view-players" class="view hidden"></section>
+    </main>
+  </div>
+
+  <!-- Nagyított kártya / felugró ablak -->
+  <div id="modal" class="hidden"><div id="modal-inner"></div></div>
+
+  <script src="cards.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
