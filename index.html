@@ -8,13 +8,31 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --bg: #0b0b10;
+  --bg-glow: #1b1020;
   --panel: #14141c;
+  --panel2: #1c1c27;
+  --input: #0d0d14;
+  --accent-bg: #2a1216;
   --line: #2a2a38;
   --text: #ececf3;
   --muted: #8b8ba0;
   --red: #ff3b3b;
+  --strong: #ffffff;
 }
-body { font-family: "Segoe UI", system-ui, sans-serif; background: radial-gradient(circle at top, #1b1020, var(--bg) 60%); color: var(--text); min-height: 100vh; }
+:root[data-theme="light"] {
+  --bg: #f3f4f8;
+  --bg-glow: #ffe3e6;
+  --panel: #ffffff;
+  --panel2: #eceef4;
+  --input: #f7f8fb;
+  --accent-bg: #ffe6e8;
+  --line: #d5d8e2;
+  --text: #1c1d26;
+  --muted: #666a7c;
+  --red: #e02b3a;
+  --strong: #10111a;
+}
+body { font-family: "Segoe UI", system-ui, sans-serif; background: radial-gradient(circle at top, var(--bg-glow), var(--bg) 60%); color: var(--text); min-height: 100vh; }
 .hidden { display: none !important; }
 button { cursor: pointer; font-family: inherit; }
 
@@ -23,10 +41,10 @@ button { cursor: pointer; font-family: inherit; }
 .auth-box { width: 100%; max-width: 380px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 28px; box-shadow: 0 0 60px rgba(255, 59, 59, .15); }
 .auth-box h1 { text-align: center; margin-bottom: 20px; letter-spacing: 1px; }
 .auth-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
-.auth-tabs button { flex: 1; padding: 10px; background: #1c1c27; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; }
-.auth-tabs button.active { color: #fff; border-color: var(--red); background: #2a1216; }
+.auth-tabs button { flex: 1; padding: 10px; background: var(--panel2); color: var(--muted); border: 1px solid var(--line); border-radius: 8px; }
+.auth-tabs button.active { color: var(--strong); border-color: var(--red); background: var(--accent-bg); }
 #auth-form { display: flex; flex-direction: column; gap: 10px; }
-#auth-form input { padding: 12px; background: #0d0d14; border: 1px solid var(--line); border-radius: 8px; color: var(--text); font-size: 15px; }
+#auth-form input { padding: 12px; background: var(--input); border: 1px solid var(--line); border-radius: 8px; color: var(--text); font-size: 15px; }
 #auth-form input:focus { outline: none; border-color: var(--red); }
 #auth-submit, .btn { padding: 12px 18px; background: linear-gradient(135deg, #ff3b3b, #b3122a); color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; transition: transform .1s, filter .2s; }
 #auth-submit:hover, .btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
@@ -40,23 +58,23 @@ button { cursor: pointer; font-family: inherit; }
 .logo { font-size: 20px; font-weight: 800; margin-bottom: 24px; text-align: center; }
 nav { display: flex; flex-direction: column; gap: 8px; }
 .nav-btn { text-align: left; padding: 13px 14px; background: transparent; color: var(--muted); border: 1px solid transparent; border-radius: 10px; font-size: 15px; transition: .15s; }
-.nav-btn:hover { background: #1c1c27; color: #fff; }
-.nav-btn.active { background: #2a1216; color: #fff; border-color: var(--red); }
+.nav-btn:hover { background: var(--panel2); color: var(--strong); }
+.nav-btn.active { background: var(--accent-bg); color: var(--strong); border-color: var(--red); }
 .side-bottom { margin-top: auto; display: flex; flex-direction: column; gap: 8px; text-align: center; }
 #me-name { font-weight: 700; }
 .coins { color: #ffd34d; font-weight: 700; font-size: 18px; }
-#logout { padding: 9px; background: #1c1c27; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; }
-#logout:hover { color: #fff; }
+#logout { padding: 9px; background: var(--panel2); color: var(--muted); border: 1px solid var(--line); border-radius: 8px; }
+#logout:hover { color: var(--strong); }
 #content { flex: 1; padding: 28px; min-width: 0; }
 .view h2 { font-size: 26px; margin-bottom: 6px; }
 .sub { color: var(--muted); margin-bottom: 18px; }
 
 /* ---------- Progress ---------- */
-.progress { height: 10px; background: #1c1c27; border-radius: 99px; overflow: hidden; margin: 8px 0 18px; max-width: 420px; }
+.progress { height: 10px; background: var(--panel2); border-radius: 99px; overflow: hidden; margin: 8px 0 18px; max-width: 420px; }
 .progress > div { height: 100%; background: linear-gradient(90deg, #ff3b3b, #ffd34d); }
 .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-.chip { padding: 7px 14px; border-radius: 99px; background: #1c1c27; border: 1px solid var(--line); color: var(--muted); font-size: 13px; }
-.chip.active { color: #fff; border-color: var(--red); }
+.chip { padding: 7px 14px; border-radius: 99px; background: var(--panel2); border: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+.chip.active { color: var(--strong); border-color: var(--red); }
 
 /* ---------- Cards ---------- */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 18px; }
@@ -133,9 +151,26 @@ nav { display: flex; flex-direction: column; gap: 8px; }
   .grid { grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 12px; }
 }
 
+/* ---------- Jelszó szem + téma váltó ---------- */
+.pw-wrap { position: relative; display: flex; }
+.pw-wrap input { width: 100%; padding-right: 46px; }
+.eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border: none; background: transparent; color: var(--muted); font-size: 18px; border-radius: 8px; line-height: 1; }
+.eye:hover { color: var(--strong); background: var(--panel2); }
+.theme-btn { padding: 9px 12px; background: var(--panel2); color: var(--text); border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
+.theme-btn:hover { border-color: var(--red); }
+.theme-float { position: fixed; top: 14px; right: 14px; z-index: 60; }
+#app:not(.hidden) ~ .theme-float, body.in-app .theme-float { display: none; }
+.card .art, .card .info { color: #fff; }
+
+.remember { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); cursor: pointer; user-select: none; }
+.remember input { width: 17px; height: 17px; accent-color: var(--red); padding: 0; }
+
 </style>
+<script>try{var t=localStorage.getItem("kk_theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 </head>
 <body>
+
+  <button class="theme-btn theme-float" data-theme-toggle>🌙 Sötét mód</button>
 
   <!-- ===== BEJELENTKEZÉS ===== -->
   <section id="auth-screen">
@@ -148,8 +183,9 @@ nav { display: flex; flex-direction: column; gap: 8px; }
       <form id="auth-form" autocomplete="off">
         <input id="auth-email" type="text" placeholder="Email (vagy felhasználónév)" maxlength="60" required>
         <input id="auth-user" type="text" placeholder="Felhasználónév (ez látszik a többieknek)" maxlength="20" class="hidden">
-        <input id="auth-pass" type="password" placeholder="Jelszó" required>
-        <input id="auth-pass2" type="password" placeholder="Jelszó újra" class="hidden">
+        <div class="pw-wrap"><input id="auth-pass" type="password" placeholder="Jelszó" required><button type="button" class="eye" data-target="auth-pass" title="Jelszó mutatása/elrejtése" aria-label="Jelszó mutatása">👁</button></div>
+        <div class="pw-wrap hidden" id="pass2-wrap"><input id="auth-pass2" type="password" placeholder="Jelszó újra"><button type="button" class="eye" data-target="auth-pass2" title="Jelszó mutatása/elrejtése" aria-label="Jelszó mutatása">👁</button></div>
+        <label class="remember"><input type="checkbox" id="auth-remember" checked> Maradjak bejelentkezve</label>
         <button type="submit" id="auth-submit">Belépés</button>
         <p id="auth-error" class="error"></p>
       </form>
@@ -168,6 +204,7 @@ nav { display: flex; flex-direction: column; gap: 8px; }
       <div class="side-bottom">
         <div id="me-name"></div>
         <div id="me-coins" class="coins"></div>
+        <button class="theme-btn" data-theme-toggle>🌙 Sötét mód</button>
         <button id="logout">Kijelentkezés</button>
       </div>
     </aside>
@@ -260,8 +297,18 @@ const store = {
 const DB = {
   users() { try { return JSON.parse(store.get("kk_users")) || {}; } catch { return {}; } },
   save(users) { store.set("kk_users", JSON.stringify(users)); },
-  session() { return store.get("kk_session"); },
-  setSession(n) { n ? store.set("kk_session", n) : store.del("kk_session"); },
+  // "Maradjak bejelentkezve" -> localStorage (bezárás után is megmarad), különben csak az adott fülön él
+  session() {
+    try { const s = sessionStorage.getItem("kk_session"); if (s) return s; } catch {}
+    return store.get("kk_session");
+  },
+  setSession(n, remember = true) {
+    store.del("kk_session");
+    try { sessionStorage.removeItem("kk_session"); } catch {}
+    if (!n) return;
+    if (remember) store.set("kk_session", n);
+    else { try { sessionStorage.setItem("kk_session", n); } catch { store.set("kk_session", n); } }
+  },
 };
 
 // Hiba esetén látható üzenet (ne csendben álljon le)
@@ -316,6 +363,25 @@ function rollCard() {
   return CARDS[CARDS.length - 1];
 }
 
+// ---------- Téma (világos / sötét) ----------
+function applyTheme(t) {
+  document.documentElement.setAttribute("data-theme", t);
+  store.set("kk_theme", t);
+  document.querySelectorAll("[data-theme-toggle]").forEach(b => (b.textContent = t === "light" ? "🌙 Sötét mód" : "☀️ Világos mód"));
+}
+applyTheme(document.documentElement.getAttribute("data-theme") || "dark");
+document.querySelectorAll("[data-theme-toggle]").forEach(b => (b.onclick = () =>
+  applyTheme(document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light")));
+
+// ---------- Jelszó szem ----------
+document.querySelectorAll(".eye").forEach(b => (b.onclick = () => {
+  const inp = document.getElementById(b.dataset.target);
+  const show = inp.type === "password";
+  inp.type = show ? "text" : "password";
+  b.textContent = show ? "🙈" : "👁";
+  b.setAttribute("aria-label", show ? "Jelszó elrejtése" : "Jelszó mutatása");
+}));
+
 // ---------- Auth ----------
 // Ha az index.html régi (nincs email mező), létrehozzuk itt, hogy ne akadjon el.
 if (!$("#auth-email")) {
@@ -329,6 +395,7 @@ if (!$("#auth-user")) {
   $("#auth-email").after(un);
 }
 $("#auth-email").required = true;
+{ const last = store.get("kk_lastid"); if (last) $("#auth-email").value = last; }
 $("#auth-user").required = false;
 $("#auth-user").classList.add("hidden");
 let mode = "login";
@@ -336,7 +403,7 @@ function setMode(m) {
   mode = m;
   $("#tab-login").classList.toggle("active", m === "login");
   $("#tab-register").classList.toggle("active", m === "register");
-  $("#auth-pass2").classList.toggle("hidden", m === "login");
+  ($("#pass2-wrap") || $("#auth-pass2")).classList.toggle("hidden", m === "login");
   $("#auth-user").classList.toggle("hidden", m === "login");
   $("#auth-email").placeholder = m === "login" ? "Email (vagy felhasználónév)" : "Email";
   $("#auth-submit").textContent = m === "login" ? "Belépés" : "Fiók létrehozása";
@@ -368,7 +435,8 @@ $("#auth-form").onsubmit = async e => {
     if (!key || users[key].pass !== await hash(pass)) return (err.textContent = "Hibás email vagy jelszó.");
     me = key;
   }
-  DB.setSession(me);
+  DB.setSession(me, $("#auth-remember").checked);
+  if (mode === "login" || true) store.set("kk_lastid", idf);
   startApp();
 };
 
@@ -377,12 +445,16 @@ $("#logout").onclick = () => {
   me = null;
   $("#app").classList.add("hidden");
   $("#auth-screen").classList.remove("hidden");
+  document.body.classList.remove("in-app");
   $("#auth-form").reset();
+  { const last = store.get("kk_lastid"); if (last) $("#auth-email").value = last; }
+  document.querySelectorAll(".eye").forEach(b => { const i = document.getElementById(b.dataset.target); i.type = "password"; b.textContent = "👁"; });
   setMode("login");
 };
 
 // ---------- App ----------
 function startApp() {
+  document.body.classList.add("in-app");
   $("#auth-screen").classList.add("hidden");
   $("#app").classList.remove("hidden");
   renderSide();
